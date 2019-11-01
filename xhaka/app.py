@@ -82,10 +82,9 @@ def upload():
                     stderr=subprocess.PIPE,
                     check=True
                 )
-            except subprocess.CalledProcessError:
+            except subprocess.CalledProcessError as e:
                 stt_code = 400
-                app.logger.info(result.stdout.decode("utf-8"))
-                app.logger.info(result.stderr.decode("utf-8"))
+                app.logger.info(e)
             else:
                 result_info = result.stdout.decode("utf-8")
                 app.logger.info(result_info)
