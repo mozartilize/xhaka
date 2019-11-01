@@ -108,8 +108,8 @@ def upload():
                     data=body,
                     headers=headers
                 )
-                print(gdrive_upload_resp.status_code)
-                print(gdrive_upload_resp.text)
+                app.logger.info(gdrive_upload_resp.status_code)
+                app.logger.info(gdrive_upload_resp.text)
     does_client_store_folders = request.cookies.get('folders_stored')
     folder_hierarchy = []
     folders_map = None
