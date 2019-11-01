@@ -78,8 +78,9 @@ def upload():
             try:
                 result = subprocess.run(
                     ["youtube-dl", "-x", "--audio-format", "mp3", yt_url],
-                    check=True,
-                    capture_output=True
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=True
                 )
             except subprocess.CalledProcessError:
                 stt_code = 400
