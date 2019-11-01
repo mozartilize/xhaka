@@ -34,7 +34,7 @@ def handle_authorize(remote, token, user_info):
         resp = redirect(url_for("upload"))
         resp.set_cookie('access_token', token['access_token'], max_age=token['expires_in'], httponly=True)
         resp.set_cookie('expires_at', str(token['expires_at']), httponly=True)
-        resp.set_cookie('refresh_token', token['refresh_token'], httponly=True)
+        resp.set_cookie('refresh_token', token.get('refresh_token', ''), httponly=True)
         return resp
     raise HTTPException
 
