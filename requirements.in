@@ -2,4 +2,5 @@ Flask
 oauthlib
 loginpass
 python-dotenv
+youtube-dl
 gunicorn
