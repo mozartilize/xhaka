@@ -84,8 +84,11 @@ def upload():
                 )
             except subprocess.CalledProcessError:
                 stt_code = 400
+                app.logger.info(result.stdout.decode("utf-8"))
+                app.logger.info(result.stderr.decode("utf-8"))
             else:
                 result_info = result.stdout.decode("utf-8")
+                app.logger.info(result_info)
                 file_path = result_info.split("[ffmpeg] Destination: ")[1]
                 file_path = file_path.split("\nDeleting original file")[0]
 
