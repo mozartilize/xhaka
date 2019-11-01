@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Xhaka</title>
+    <meta charset="UTF-8">
+  </head>
+  <body style="padding: 50px 100px;">
+  <h1>Xhaka</h1>
+  <h3>Download an Youtube video as mp3 and upload it to your Google Drive.</h3>
+  <br/>
+  <form action="{{ url_for('upload') }}" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div>
+      <label for="url">Youtube URL:</label>
+    </div>
+    <div>
+      <input type="text" name="url" id="url">
+    </div>
+    <input type="hidden" name="parents" id="parents">
+    <div>
+      <label for="url">Destination Folder:</label>
+      <div><small>If not select, file will be uploaded to root folder</small></div>
+    </div>
+    <div id="folders-wrapper">
+      <ul>
+        {% for f in folder_hierarchy %}
+          <li id="{{ f|last }}" style="white-space:pre;cursor:pointer;">{{ " " * (f|length - 1) * 8 }}<span>{{ folders_map[f|last] }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <button type="submit">Submit</button>
+  </form>
+  </body>
+  <script type="text/javascript">
+    $folderLabels = document.querySelectorAll("#folders-wrapper li span");
+    for (var i = 0; i < $folderLabels.length; i++) {
+      $folderLabels[i].addEventListener('click', function(e) {
+        $self = this;
+        for (var j = 0; j < $folderLabels.length; j++) {
+          if ($folderLabels[j] === this) {
+            continue;
+          }
+          $folderLabels[j].style.backgroundColor = ''
+          $folderLabels[j].style.color = ''
+        }
+        if (this.style.backgroundColor !== '') {
+          this.style.backgroundColor = ''
+          document.getElementById('parents').value = '';
+        } else {
+          this.style.backgroundColor = 'blue';
+          document.getElementById('parents').value = this.parentElement.id;
+        }
+        if (this.style.color !== '') {
+          this.style.color = ''  
+        } else {
+          this.style.color = 'white';
+        }
+      })
+    }
+  </script>
+</html>

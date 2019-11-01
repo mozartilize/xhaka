@@ -1,0 +1,1 @@
+web: gunicorn xhaka.app:app --log-file -

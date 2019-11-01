@@ -1,0 +1,5 @@
+Flask
+oauthlib
+loginpass
+python-dotenv
+gunicorn
