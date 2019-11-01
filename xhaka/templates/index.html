@@ -6,7 +6,7 @@
   </head>
   <body style="padding: 50px 100px;">
   <h1>Xhaka</h1>
-  <h3>Download an Youtube video as mp3 and upload it to your Google Drive.</h3>
+  <h3>Download a Youtube video as mp3 and upload it to your Google Drive.</h3>
   <br/>
   {% if request.cookies.get('refresh_token') %}
     <a href="{{ url_for('upload') }}">Upload</a>
