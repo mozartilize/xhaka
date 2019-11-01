@@ -5,7 +5,7 @@ from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.audio import MIMEAudio
-from flask import Flask, render_template, make_response, request, redirect, url_for, Response
+from flask import Flask, render_template, make_response, request, redirect, url_for, Response, session
 from werkzeug.exceptions import HTTPException
 from authlib.flask.client import OAuth
 from loginpass import create_flask_blueprint, Google
@@ -57,7 +57,7 @@ def refresh_access_token(f):
                 resp.set_cookie('expires_at', str(token['expires_at']), httponly=True)
                 return resp
             else:
-                return redirect(url_for("loginpass_google.login"))
+                return redirect(url_for("home"))
         else:
             return f(*args, **kwargs)
     return wrapper
@@ -67,10 +67,16 @@ google_bp = create_flask_blueprint(Google, oauth, handle_authorize)
 app.register_blueprint(google_bp, url_prefix="/google")
 
 
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+
 @app.route("/upload", methods=["GET", "POST"])
 @refresh_access_token
 def upload():
     stt_code = 200
+    msg = session.pop('msg', None)
     if request.method == "POST":
         parents = request.form.get("parents")
         yt_url = request.form.get("url")
@@ -85,6 +91,7 @@ def upload():
             except subprocess.CalledProcessError as e:
                 stt_code = 400
                 app.logger.info(e)
+                msg = {'type': 'error', 'msg': str(e.stderr.decode("utf-8"))}
             else:
                 result_info = result.stdout.decode("utf-8")
                 app.logger.info(result_info)
@@ -112,6 +119,12 @@ def upload():
                 )
                 app.logger.info(gdrive_upload_resp.status_code)
                 app.logger.info(gdrive_upload_resp.text)
+                if gdrive_upload_resp.status_code == 200:
+                    session['msg'] = {'type': 'success', 'msg': 'Success'}
+                    return redirect(url_for("upload"))
+                elif 400 <= gdrive_upload_resp.status_code < 500:
+                    msg = {'type': 'error', 'msg': gdrive_upload_resp.text}
+                    stt_code = gdrive_upload_resp.status_code
     does_client_store_folders = request.cookies.get('folders_stored')
     folder_hierarchy = []
     folders_map = None
@@ -123,4 +136,9 @@ def upload():
         })
         folders_data = folder_list_filted(folders_data_resp.json())
         folder_hierarchy, folders_map = get_folder_hierarchy(folders_data)
-    return render_template("index.html", folder_hierarchy=folder_hierarchy, folders_map=folders_map), stt_code
+    return render_template(
+        "upload.html",
+        folder_hierarchy=folder_hierarchy,
+        folders_map=folders_map,
+        msg=msg
+    ), stt_code
