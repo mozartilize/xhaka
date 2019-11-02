@@ -8,13 +8,16 @@ from email.mime.audio import MIMEAudio
 from flask import Flask, render_template, make_response, request, redirect, url_for, Response, session
 from werkzeug.exceptions import HTTPException
 from authlib.flask.client import OAuth
+from authlib.common.errors import AuthlibBaseError
 from loginpass import create_flask_blueprint, Google
+from flask_wtf.csrf import CSRFProtect
 
 from .helpers import folder_list_filted, get_folder_hierarchy
 
 
 app = Flask(__name__)
 app.config.from_object('xhaka.settings')
+csrf = CSRFProtect(app)  # noqa
 
 
 def fetch_token(name):
@@ -29,12 +32,17 @@ def fetch_token(name):
             return {}
         if not token.get('access_token'):
             app.logger.info("Refesh access token")
-            new_token = oauth.google.fetch_access_token(
-                refresh_token=token.get("refresh_token"),
-                grant_type="refresh_token"
-            )
-            token["access_token"] = new_token["access_token"]
-            token["expires_at"] = new_token["expires_at"]
+            try:
+                new_token = oauth.google.fetch_access_token(
+                    refresh_token=token.get("refresh_token"),
+                    grant_type="refresh_token"
+                )
+            except AuthlibBaseError as e:
+                app.logger.error(e)
+                return {}
+            else:
+                token["access_token"] = new_token["access_token"]
+                token["expires_at"] = new_token["expires_at"]
         return token
 
 

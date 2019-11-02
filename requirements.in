@@ -1,4 +1,5 @@
 Flask
+Flask-WTF
 oauthlib
 loginpass
 python-dotenv
