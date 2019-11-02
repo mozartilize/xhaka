@@ -18,12 +18,33 @@ app.config.from_object('xhaka.settings')
 
 
 def fetch_token(name):
-    return {
-        "access_token": request.cookies.get("access_token"),
-        "expires_at": request.cookies.get("expires_at"),
-        "refresh_token": request.cookies.get("refresh_token"),
-        "token_type": "Bearer",
-    } 
+    if name == 'google':
+        token = {
+            "access_token": request.cookies.get("access_token"),
+            "expires_at": request.cookies.get("expires_at"),
+            "refresh_token": request.cookies.get("refresh_token"),
+            "token_type": "Bearer",
+        }
+        if not token.get('refresh_token'):
+            return {}
+        if not token.get('access_token'):
+            app.logger.info("Refesh access token")
+            new_token = oauth.google.fetch_access_token(
+                refresh_token=token.get("refresh_token"),
+                grant_type="refresh_token"
+            )
+            token["access_token"] = new_token["access_token"]
+            token["expires_at"] = new_token["expires_at"]
+        return token
+
+
+@app.after_request
+def send_access_token_cookie(resp):
+    token = oauth.google.token
+    if not request.cookies.get("access_token") and token.get("access_token"):
+        resp.set_cookie('access_token', token['access_token'], expires=token['expires_at'], httponly=True)
+        resp.set_cookie('expires_at', str(token['expires_at']), httponly=True)
+    return resp
 
 
 oauth = OAuth(app, fetch_token=fetch_token)
@@ -34,32 +55,17 @@ def handle_authorize(remote, token, user_info):
         resp = redirect(url_for("upload"))
         resp.set_cookie('access_token', token['access_token'], max_age=token['expires_in'], httponly=True)
         resp.set_cookie('expires_at', str(token['expires_at']), httponly=True)
-        resp.set_cookie('refresh_token', token.get('refresh_token', ''), httponly=True)
+        resp.set_cookie('refresh_token', token['refresh_token'], httponly=True)
         return resp
     raise HTTPException
 
 
-def refresh_access_token(f):
+def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if oauth.google.token.get("access_token") is None:
-            if oauth.google.token.get("refresh_token"):
-                token = oauth.google.fetch_access_token(
-                    refresh_token=oauth.google.token.get("refresh_token"),
-                    grant_type="refresh_token"
-                )
-                oauth.google.token["access_token"] = token["access_token"]
-                oauth.google.token["expires_at"] = token["expires_at"]
-                resp = f(*args, **kwargs)
-                if not isinstance(resp, Response):
-                    resp = make_response(resp)
-                resp.set_cookie('access_token', token["access_token"], max_age=token['expires_in'], httponly=True)
-                resp.set_cookie('expires_at', str(token['expires_at']), httponly=True)
-                return resp
-            else:
-                return redirect(url_for("home"))
-        else:
-            return f(*args, **kwargs)
+        if oauth.google.token and not oauth.google.token.get("refresh_token") or not oauth.google.token:
+            return redirect(url_for("home"))
+        return f(*args, **kwargs)
     return wrapper
 
 
@@ -73,7 +79,7 @@ def home():
 
 
 @app.route("/upload", methods=["GET", "POST"])
-@refresh_access_token
+@login_required
 def upload():
     stt_code = 200
     msg = session.pop('msg', None)
