@@ -1,16 +1,10 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Xhaka</title>
-    <meta charset="UTF-8">
-  </head>
-  <body style="padding: 50px 100px;">
-  <h1>Xhaka</h1>
-  <h3>Download a Youtube video as mp3 and upload it to your Google Drive.</h3>
-  <br/>
+{% extends "base.html" %}
+{% block content %}
+
   {% if request.cookies.get('refresh_token') %}
     <a href="{{ url_for('upload') }}">Upload</a>
   {% else %}
     <a href="{{ url_for('loginpass_google.login') }}">Login with Google</a>
   {% endif %}
-</html>
+
+{% endblock %}

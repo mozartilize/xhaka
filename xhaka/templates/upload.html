@@ -1,44 +1,51 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Xhaka</title>
-    <meta charset="UTF-8">
-  </head>
-  <body style="padding: 50px 100px;">
-  <h1>Xhaka</h1>
-  <h3>Download a Youtube video as mp3 and upload it to your Google Drive.</h3>
-  <br/>
+{% extends "base.html" %}
+{% block content %}
+
   {% if msg %}
     <p style="color:{{ 'red' if msg['type'] == 'error' else 'green' }}">{{ msg['msg'] }}</p>
   {% endif %}
   <form action="{{ url_for('upload') }}" method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <div>
-      <label for="url">Youtube URL:</label>
-    </div>
-    <div>
-      <input type="text" name="url" id="url">
+    <div class="form-group">
+      <div>
+        <label for="url">Youtube URL:</label>
+      </div>
+      <div>
+        <input type="text" name="url" id="url">
+      </div>
     </div>
     <input type="hidden" name="parents" id="parents">
-    <div>
-      <label for="url">Destination Folder:</label>
-      <div><small>If not select, file will be uploaded to root folder</small></div>
+    <div class="form-group">
+      <div>
+        <label for="url">Destination Folder:</label>
+        <div><small>If not select, file will be uploaded to root folder</small></div>
+      </div>
+      <div id="folders-wrapper">
+        <ul style="list-style:none;padding:0.4em;margin:0;">
+          <li id=''><span style="cursor:pointer;">root</span></li>
+          {% for f in folder_hierarchy -%}
+            {% set outer_lvls = [] %}
+            {% if not loop.last %}
+              {% for next_f in folder_hierarchy[loop.index:] %}
+                {% if next_f|length < f|length and next_f|length not in outer_lvls %} 
+                  {{ outer_lvls.append(next_f|length) or '' }}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+            <li id="{{ f|last }}" style="white-space: pre-wrap;">{% for outer_lvl in outer_lvls|sort %}{% if loop.first %}{{ " " * (outer_lvl - 1) * 8 }}<span class="tree-guideline-left">{{ " " * 8 }}</span>{% else %}{{ " " * (outer_lvl - 1 - loop.previtem) * 8 }}<span class="tree-guideline-left">{{ " " * 8 }}</span>{% endif %}{% endfor %}{{ " " * (f|length - (outer_lvls|max if outer_lvls else 0) - 1) * 8 }}<span class="tree-guideline">{{ " " * 8 }}</span><span style="cursor:pointer;">{{ folders_map[f|last]}}</span></li>
+          {%- endfor %}
+        </ul>
+      </div>
     </div>
-    <div id="folders-wrapper">
-      <ul>
-        {% for f in folder_hierarchy %}
-          <li id="{{ f|last }}" style="white-space:pre;cursor:pointer;">{{ " " * (f|length - 1) * 8 }}<span>{{ folders_map[f|last] }}</span></li>
-        {% endfor %}
-      </ul>
-    </div>
+    <div class="form-group">
     <button type="submit">Submit</button>
+    </div>
   </form>
   </body>
   <script type="text/javascript">
     $folderLabels = document.querySelectorAll("#folders-wrapper li span");
     for (var i = 0; i < $folderLabels.length; i++) {
       $folderLabels[i].addEventListener('click', function(e) {
-        $self = this;
         for (var j = 0; j < $folderLabels.length; j++) {
           if ($folderLabels[j] === this) {
             continue;
@@ -61,4 +68,4 @@
       })
     }
   </script>
-</html>
+{% endblock %}

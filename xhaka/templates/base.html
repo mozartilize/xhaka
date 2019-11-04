@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Xhaka</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        padding: 2em 5em;
+      }
+      @media only screen
+      and (min-width : 300px)
+      and (max-width : 750px) {
+        body {
+          padding: 0;
+        }
+      }
+      .tree-guideline {
+        border: 1px red dotted;
+        border-top: none;
+        border-right: none;
+        vertical-align: super;
+      }
+      .tree-guideline-left {
+        border-left: 1px red dotted;
+        vertical-align: super;
+      }
+      .form-group {
+        padding: 0.5em 0;
+      }
+    </style>
+  </head>
+  <body>
+  <h1>Xhaka</h1>
+  <h3>Download a Youtube video as mp3 and upload it to your Google Drive.</h3>
+  <br/>
+  {% block content %}
+  {% endblock %}
+</html>
