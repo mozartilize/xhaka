@@ -15,7 +15,8 @@ Mainly: Because youtube app on mobile sucks! It does not have loop or background
 ## Run on local
 
 - Get your [google application](https://console.developers.google.com/apis/credentials) client_id and client_secret and set them as env variables
-- Install dependencies via `pip install -r requirements`, you maybe want to create virtualenv and use pip-tools to manage dependencies
+- Install dependencies via `pip install -r requirements.txt`, you maybe want to create virtualenv and use pip-tools to manage dependencies
+- Install `ffmpeg` binary on your system
 - Run `FLASK_APP=xhaka/app.py FLASK_ENV=development FLASK_DEBUG=1 flask run`
 
 ## About the name Xhaka
