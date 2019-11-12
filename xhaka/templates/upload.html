@@ -14,7 +14,7 @@
         <input type="text" name="url" id="url">
       </div>
     </div>
-    <input type="hidden" name="parents" id="parents">
+    <input type="hidden" name="folder_id" id="folder_id">
     <div class="form-group">
       <div>
         <label for="url">Destination Folder:</label>
@@ -56,10 +56,10 @@
         }
         if (this.style.backgroundColor !== '') {
           this.style.backgroundColor = ''
-          document.getElementById('parents').value = '';
+          document.getElementById('folder_id').value = '';
         } else {
           this.style.backgroundColor = 'blue';
-          document.getElementById('parents').value = this.parentElement.id;
+          document.getElementById('folder_id').value = this.parentElement.id;
         }
         if (this.style.color !== '') {
           this.style.color = ''  

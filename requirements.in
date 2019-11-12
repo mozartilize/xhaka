@@ -4,4 +4,7 @@ oauthlib
 loginpass
 python-dotenv
 youtube-dl
+orjson
+apscheduler
+redis
 gunicorn

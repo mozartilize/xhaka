@@ -4,6 +4,9 @@
 #
 #    pip-compile --generate-hashes requirements.in
 #
+apscheduler==3.6.3 \
+    --hash=sha256:3bb5229eed6fbbdafc13ce962712ae66e175aa214c69bed35a06bffcf0c5e244 \
+    --hash=sha256:e8b1ecdb4c7cb2818913f766d5898183c7cb8936680710a4d3a966e02262e526
 authlib==0.12.1 \
     --hash=sha256:40728195efe915c96209a6a57ad6b5565a951bb469f01bd0c38ea13a0bac6c68 \
     --hash=sha256:4b6a82217b376fe5e7a9e5348865591077c2e6e5d987f4741ac74975b75aa145 \
@@ -134,12 +137,28 @@ markupsafe==1.1.1 \
 oauthlib==3.1.0 \
     --hash=sha256:bee41cc35fcca6e988463cacc3bcb8a96224f470ca547e697b604cc697b2f889 \
     --hash=sha256:df884cd6cbe20e32633f1db1072e9356f53638e4361bef4e8b03c9127c9328ea
+orjson==2.1.2 \
+    --hash=sha256:1b365b12a12fe68e3226ca98dcc1b7bf84cdbf8dba3f71e099af6eaec17b86bb \
+    --hash=sha256:2b69c37824596874f6bcf887b876d090495ce889ad894833540bc149c828ed7c \
+    --hash=sha256:40a6b0c17d94907d5c26ed2225fc465e48aa0eac8fd5d46d01beb105e4db06c1 \
+    --hash=sha256:4c65f6ae4ecc246d7c9a32f8ee0dcfd502b25004dd2e3d602920033ee77a346d \
+    --hash=sha256:5a0c90eb8946027319748010664714f713fd128b5425710ff1e0aad0fd711a48 \
+    --hash=sha256:5da5ab39915593638a60fa74a206cddba7780734fa2a526bc22cb534573f9d11 \
+    --hash=sha256:7e60f62c6b045bf59d60d5fa96b12a4cddcf82103c27b1c7f6502cccfb26ebe1 \
+    --hash=sha256:ec23afffd7c78a3ff1bf50f1f220bda4ef0df1888ccb00c5c194a312033e494f
 pycparser==2.19 \
     --hash=sha256:a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3 \
     # via cffi
 python-dotenv==0.10.3 \
     --hash=sha256:debd928b49dbc2bf68040566f55cdb3252458036464806f4094487244e2a4093 \
     --hash=sha256:f157d71d5fec9d4bd5f51c82746b6344dffa680ee85217c123f4a0c8117c4544
+pytz==2019.3 \
+    --hash=sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d \
+    --hash=sha256:b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be \
+    # via apscheduler, tzlocal
+redis==3.3.11 \
+    --hash=sha256:3613daad9ce5951e426f460deddd5caf469e08a3af633e9578fc77d362becf62 \
+    --hash=sha256:8d0fc278d3f5e1249967cba2eb4a5632d19e45ce5c09442b8422d15ee2c22cc2
 requests==2.22.0 \
     --hash=sha256:11e007a8a2aa0323f5a921e9e6a2d7e4e67d9877e85773fba9ba6419025cbeb4 \
     --hash=sha256:9cf5292fcd0f598c671cfc1e0d7d1a7f13bb8085e9a590f48c010551dc6c4b31 \
@@ -147,7 +166,11 @@ requests==2.22.0 \
 six==1.12.0 \
     --hash=sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c \
     --hash=sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73 \
-    # via cryptography
+    # via apscheduler, cryptography
+tzlocal==2.0.0 \
+    --hash=sha256:11c9f16e0a633b4b60e1eede97d8a46340d042e67b670b290ca526576e039048 \
+    --hash=sha256:949b9dd5ba4be17190a80c0268167d7e6c92c62b30026cf9764caf3e308e5590 \
+    # via apscheduler
 urllib3==1.25.6 \
     --hash=sha256:3de946ffbed6e6746608990594d08faac602528ac7015ac28d33cee6a45b7398 \
     --hash=sha256:9a107b99a5393caf59c7aa3c1249c16e6879447533d0887f4336dde834c7be86 \
@@ -163,3 +186,7 @@ wtforms==2.2.1 \
 youtube-dl==2019.10.29 \
     --hash=sha256:0b6611807b0bb978a0384ddebf215ea1f974ecf73d80d04e9f614ff30b1443f0 \
     --hash=sha256:b14fcb8f67a8bd334aa5de0937433e626729a18df5d538a8b94eaf70101493c5
+
+# WARNING: The following packages were not pinned, but pip requires them to be
+# pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
+# setuptools==41.6.0        # via apscheduler
