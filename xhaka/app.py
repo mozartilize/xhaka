@@ -45,8 +45,8 @@ def download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id, user_id):
             check=True
         )
     except subprocess.CalledProcessError as e:
-        current_app.logger.error(e)
-        raise YoutubedlError(str(e), user_id)
+        current_app.logger.error(e.stderr.decode('utf-8'))
+        raise YoutubedlError(e.stderr.decode('utf-8'), user_id)
 
     result_info = result.stdout.decode("utf-8")
     current_app.logger.info(result_info)
