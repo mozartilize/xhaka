@@ -16,7 +16,7 @@ from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler import events
-
+import json as pyjson
 from .helpers import folder_list_filted, get_folder_hierarchy
 
 
@@ -56,16 +56,15 @@ def download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id, user_id):
     related = MIMEMultipart('related')
     related.set_boundary("--foo_bar_baz--")
 
-    fileinfo = MIMEApplication(json.dumps(
+    fileinfo = MIMEApplication(pyjson.dumps(
         {
             "name": file_path,
             "parents": [destination_folder_id]
-        }), "json; charset=UTF-8",
-        _encoder=encoders.encode_noop
-    )
+        }), "json", _encoder=encoders.encode_noop, charset='utf-8')
     related.attach(fileinfo)
 
-    upload_file = MIMEAudio(open(file_path, 'rb').read(), 'mpeg')
+    with open(file_path, 'rb') as f:
+        upload_file = MIMEAudio(f.read(), 'mpeg')
     related.attach(upload_file)
 
     body = related.as_string().split('\n\n', 1)[1]
@@ -77,7 +76,7 @@ def download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id, user_id):
     )
     if gdrive_upload_resp.status_code == 200:
         current_app.logger.info('upload successfully')
-    elif 400 <= gdrive_upload_resp.status_code < 500:
+    else:
         current_app.logger.error(gdrive_upload_resp.status_code)
         current_app.logger.error(gdrive_upload_resp.text)
         raise GDriveUploadError(gdrive_upload_resp.text, user_id)
@@ -89,7 +88,7 @@ def schedule_job(yt_url, destination_folder_id, token, user_id):
         try:
             download_vid_n_upload_to_ggdrive(
                 yt_url, destination_folder_id, user_id)
-        except Exception as e:
+        except BaseException as e:
             e.user_id = user_id
             raise e
     return user_id
