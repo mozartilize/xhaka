@@ -249,7 +249,7 @@ def upload():
                     'started_at': int(job.trigger.run_date.timestamp()),
                     'yt_url': yt_url,
                     'folder_id': folder_id,
-                    'folder_name': folders_map[folder_id],
+                    'folder_name': folders_map.get(folder_id, ''),
                     'status': None,
                     'msg': None
                 })

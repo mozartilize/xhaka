@@ -6,7 +6,7 @@
     <small style="display:block;">Started at: {{ jobinfo['started_at']|timestamp_to_datetime }}</small>
     <small style="display:block;">Link: {{ jobinfo['yt_url'] }}</small>
     <small style="display:block;">Status: {{ jobinfo['status'] }}</small>
-    <small style="display:block;">Message: {{ jobinfo['message']|default('') }}</small>
+    <small style="display:block;">Message: {{ jobinfo['msg']|default('') }}</small>
   {% else %}
     <p>No tasks found</p>
   {% endfor %}
