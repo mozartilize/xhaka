@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+  <a href="{{ url_for('upload') }}">Go to upload</a>
 
   {% for job_id, jobinfo in jobs.items() %}
     <p>{{ job_id }}</p>

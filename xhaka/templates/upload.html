@@ -4,6 +4,7 @@
   {% if msg %}
     <p style="color:{{ 'red' if msg['type'] == 'error' else 'green' }}">{{ msg['msg'] }}</p>
   {% endif %}
+  <a href="{{ url_for('tasks') }}">Go to tasks</a>
   <form action="{{ url_for('upload') }}" method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
@@ -17,7 +18,7 @@
     <input type="hidden" name="folder_id" id="folder_id">
     <div class="form-group">
       <div>
-        <label for="url">Destination Folder:</label>
+        <label for="url">Destination Folder: <a href="{{ url_for('refresh_folders') }}">Refresh</a></label>
         <div><small>If not select, file will be uploaded to root folder</small></div>
       </div>
       <div id="folders-wrapper">

@@ -1,11 +1,5 @@
-import subprocess
-import redis
 from functools import wraps
 from datetime import datetime, timezone, timedelta
-from email import encoders
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-from email.mime.audio import MIMEAudio
 from flask import Flask, current_app, render_template, request, redirect, \
     url_for, session, json
 from werkzeug.exceptions import Unauthorized
@@ -16,27 +10,23 @@ from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler import events
-import json as pyjson
-from .helpers import folder_list_filted, get_folder_hierarchy
+import redis
+from .ggdrive_folders import folder_list_filted, get_folder_hierarchy
 
 
-class JobBaseException(Exception):
-    def __init__(self, msg, user_id):
-        super().__init__(msg)
-        self.user_id = user_id
-
-
-class GDriveUploadError(JobBaseException):
+class GDriveUploadError(Exception):
     pass
 
 
-class YoutubedlError(JobBaseException):
+class YoutubedlError(Exception):
     pass
 
 
-def download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id, user_id):
+def download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id):
     """Download youtube video, convert it to mp3 format
-    and then upload to gg drive."""
+    and then upload to gg drive.
+    """
+    import subprocess
     try:
         result = subprocess.run(
             ["youtube-dl", "-x", "--audio-format", "mp3", yt_url],
@@ -46,29 +36,15 @@ def download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id, user_id):
         )
     except subprocess.CalledProcessError as e:
         current_app.logger.error(e.stderr.decode('utf-8'))
-        raise YoutubedlError(e.stderr.decode('utf-8'), user_id)
+        raise YoutubedlError(e.stderr.decode('utf-8'))
 
     result_info = result.stdout.decode("utf-8")
     current_app.logger.info(result_info)
     file_path = result_info.split("[ffmpeg] Destination: ")[1]
     file_path = file_path.split("\nDeleting original file")[0]
 
-    related = MIMEMultipart('related')
-    related.set_boundary("--foo_bar_baz--")
-
-    fileinfo = MIMEApplication(pyjson.dumps(
-        {
-            "name": file_path,
-            "parents": [destination_folder_id]
-        }), "json", _encoder=encoders.encode_noop, charset='utf-8')
-    related.attach(fileinfo)
-
-    with open(file_path, 'rb') as f:
-        upload_file = MIMEAudio(f.read(), 'mpeg')
-    related.attach(upload_file)
-
-    body = related.as_string().split('\n\n', 1)[1]
-    headers = dict(related.items())
+    from .packaging import prepare_package
+    headers, body = prepare_package(file_path, destination_folder_id)
     gdrive_upload_resp = oauth.google.post(
         "/upload/drive/v3/files?uploadType=multipart",
         data=body,
@@ -79,15 +55,14 @@ def download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id, user_id):
     else:
         current_app.logger.error(gdrive_upload_resp.status_code)
         current_app.logger.error(gdrive_upload_resp.text)
-        raise GDriveUploadError(gdrive_upload_resp.text, user_id)
+        raise GDriveUploadError(gdrive_upload_resp.text)
 
 
 def schedule_job(yt_url, destination_folder_id, token, user_id):
     with app.app_context():
         oauth.google.token = token
         try:
-            download_vid_n_upload_to_ggdrive(
-                yt_url, destination_folder_id, user_id)
+            download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id)
         except BaseException as e:
             e.user_id = user_id
             raise e
@@ -98,7 +73,7 @@ def job_event_handler(event):
     user_id = (event.exception and event.exception.user_id) or event.retval
     jobinfo = json.loads(redis_jobstore.redis.hget(user_id, event.job_id))
     if event.exception:
-        jobinfo['status'] = 'error'
+        jobinfo['status'] = event.exception.__name__
         jobinfo['msg'] = str(event.exception)
     else:
         jobinfo['status'] = 'success'
@@ -222,17 +197,11 @@ def upload():
     if msg and msg['msg'] == 'Task created':
         stt_code = 202
 
-    does_client_store_folders = request.cookies.get('folders_stored')
-    folder_hierarchy = []
-    folders_map = None
-    if not does_client_store_folders:
-        folders_data_resp = oauth.google.get("/drive/v2/files", params={
-            "corpora": "default",
-            "q": "mimeType='application/vnd.google-apps.folder'",
-            "orderBy": "folder",
-        })
-        folders_data = folder_list_filted(folders_data_resp.json())
-        folder_hierarchy, folders_map = get_folder_hierarchy(folders_data)
+    if not session.get('folder_hierarchy') or not session.get('folders_map'):
+        folder_hierarchy, folders_map = get_folders_and_store_to_session()
+    else:
+        folder_hierarchy = session['folder_hierarchy']
+        folders_map = session['folders_map']
 
     if request.method == "POST":
         folder_id = request.form.get("folder_id")
@@ -263,6 +232,28 @@ def upload():
         folders_map=folders_map,
         msg=msg
     ), stt_code
+
+
+@app.route("/refresh-folders")
+@login_required
+def refresh_folders():
+    get_folders_and_store_to_session()
+    return redirect(url_for('upload'))
+
+
+def get_folders_and_store_to_session():
+    current_app.logger.info('Refresh folders for user_id: %s'
+                            % (session['user_id']))
+    folders_data_resp = oauth.google.get("/drive/v2/files", params={
+            "corpora": "default",
+            "q": "mimeType='application/vnd.google-apps.folder'",
+            "orderBy": "folder",
+        })
+    folders_data = folder_list_filted(folders_data_resp.json())
+    folder_hierarchy, folders_map = get_folder_hierarchy(folders_data)
+    session['folder_hierarchy'] = folder_hierarchy
+    session['folders_map'] = folders_map
+    return folder_hierarchy, folders_map
 
 
 @app.route("/tasks")
