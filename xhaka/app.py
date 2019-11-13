@@ -73,7 +73,7 @@ def job_event_handler(event):
     user_id = (event.exception and event.exception.user_id) or event.retval
     jobinfo = json.loads(redis_jobstore.redis.hget(user_id, event.job_id))
     if event.exception:
-        jobinfo['status'] = event.exception.__name__
+        jobinfo['status'] = event.exception.__class__.__name__
         jobinfo['msg'] = str(event.exception)
     else:
         jobinfo['status'] = 'success'
