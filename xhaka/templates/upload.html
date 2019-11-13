@@ -34,7 +34,7 @@
               {% endfor %}
             {% endif %}
             {# must be kept on same line because of `pre-wrap` #}
-            <li id="{{ f|last }}" style="white-space: pre-wrap;">{% for outer_lvl in outer_lvls|sort %}{% if loop.first %}{{ " " * (outer_lvl - 1) * 8 }}<span class="tree-guideline-left">{{ " " * 8 }}</span>{% else %}{{ " " * (outer_lvl - 1 - loop.previtem) * 8 }}<span class="tree-guideline-left">{{ " " * 8 }}</span>{% endif %}{% endfor %}{{ " " * (f|length - (outer_lvls|max if outer_lvls else 0) - 1) * 8 }}<span class="tree-guideline">{{ " " * 8 }}</span><span style="cursor:pointer;">{{ folders_map[f|last]}}</span></li>
+            <li id="{{ f|last }}" style="white-space: pre-wrap;">{% for outer_lvl in outer_lvls|sort %}{% if loop.first %}{{ " " * (outer_lvl - 1) * 8 }}<span class="tree-guideline-left">{{ " " * 8 }}</span>{% else %}{{ " " * (outer_lvl - 1 - loop.previtem) * 8 }}<span class="tree-guideline-left">{{ " " * 8 }}</span>{% endif %}{% endfor %}{{ " " * (f|length - (outer_lvls|max if outer_lvls else 0) - 1) * 8 }}<span class="tree-guideline">{{ " " * 8 }}</span><span class="folder-name" style="cursor:pointer;">{{ folders_map[f|last]}}</span></li>
           {%- endfor %}
         </ul>
       </div>
@@ -45,7 +45,7 @@
   </form>
   </body>
   <script type="text/javascript">
-    $folderLabels = document.querySelectorAll("#folders-wrapper li span");
+    $folderLabels = document.querySelectorAll("#folders-wrapper li .folder-name");
     for (var i = 0; i < $folderLabels.length; i++) {
       $folderLabels[i].addEventListener('click', function(e) {
         for (var j = 0; j < $folderLabels.length; j++) {
