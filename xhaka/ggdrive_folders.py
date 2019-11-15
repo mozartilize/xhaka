@@ -12,7 +12,7 @@ def folder_list_filted(data):
         }
         for item in items
         if item['userPermission']['role'] == 'owner'
-            and not item['labels']['trashed']
+        and not item['labels']['trashed']
     ]
 
     def find_more(fid):
@@ -31,7 +31,7 @@ def folder_list_filted(data):
                         if not pitems['isRoot']
                     ],
                 }
-                if not fdata in own_folders:
+                if fdata not in own_folders:
                     own_folders.append(fdata)
                     find_more(item['id'])
 
@@ -54,7 +54,6 @@ def get_folder_hierarchy(folders):
         folder_id_name_pairs[folder['id']] = folder['name']
         result = []
         for pid in folder['parent_ids']:
-            result = []
             findx(folder, pid, folders, result)
             result.append(folder['id'])
             folder_paths.append(result)

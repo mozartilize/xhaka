@@ -9,9 +9,20 @@ from loginpass import create_flask_blueprint, Google
 from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.redis import RedisJobStore
+from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler import events
-import redis
 from .ggdrive_folders import folder_list_filted, get_folder_hierarchy
+from .scheduler_setup import is_predefined_crontask_lck
+
+
+jobinfo_keys = set([
+    'started_at',
+    'yt_url',
+    'folder_id',
+    'folder_name',
+    'status',
+    'msg'
+])
 
 
 class GDriveUploadError(Exception):
@@ -70,8 +81,12 @@ def schedule_job(yt_url, destination_folder_id, token, user_id):
 
 
 def job_event_handler(event):
+    if event.jobstore == 'memory':
+        return
+
     user_id = (event.exception and event.exception.user_id) or event.retval
-    jobinfo = json.loads(redis_jobstore.redis.hget(user_id, event.job_id))
+    key = "apscheduler.jobinfo:%s:%s" % (user_id, event.job_id)
+    jobinfo = json.loads(redis_jobstore.redis.get(key))
     if event.exception:
         jobinfo['status'] = event.exception.__class__.__name__
         jobinfo['msg'] = str(event.exception)
@@ -79,10 +94,11 @@ def job_event_handler(event):
         jobinfo['status'] = 'success'
 
     with redis_jobstore.redis.pipeline() as pipe:
-        redis_jobstore.redis.hset(
-                user_id,
-                event.job_id,
-                json.dumps(jobinfo)
+        redis_jobstore.redis.set(
+                key,
+                json.dumps(jobinfo),
+                px=redis_jobstore.redis.pttl(key),
+                xx=True
             )
         pipe.execute()
 
@@ -98,21 +114,66 @@ def timestamp_to_datetime(s):
 
 
 scheduler = BackgroundScheduler()
+memory_jobstore = MemoryJobStore()
+scheduler.add_jobstore(memory_jobstore, 'memory')
 redis_jobstore = RedisJobStore(
     host=app.config['REDIS_HOST'],
     port=app.config['REDIS_PORT'],
     password=app.config['REDIS_PASSWORD']
 )
-try:
-    redis_jobstore.redis.ping()
-except redis.ConnectionError:
-    raise
+# check if redis server is ready
+redis_jobstore.redis.ping()
 
 scheduler.add_jobstore(redis_jobstore)
 scheduler.add_listener(job_event_handler,
                        events.EVENT_JOB_ERROR | events.EVENT_JOB_EXECUTED)
 
 scheduler.start()
+
+
+def clean_up_job_info():
+    from json import JSONDecodeError
+    print('cleaning up task running')
+    cur = 0
+    while 1:
+        cur, keys = redis_jobstore.redis.scan(cur, "*")
+        for key in keys:
+            if redis_jobstore.redis.type(key) == b'hash':
+                jobs = redis_jobstore.redis.hgetall(key)
+                oldjobids = []
+                for jobid, jobinfodata in jobs.items():
+                    try:
+                        jobinfo = json.loads(jobinfodata)
+                    except JSONDecodeError:
+                        pass
+                    else:
+                        if isinstance(jobinfo, dict) \
+                                and set(jobinfo.keys()) == jobinfo_keys \
+                                and datetime.now(tz=timezone(timedelta(0))) \
+                                - datetime.fromtimestamp(
+                                    jobinfo['started_at'],
+                                    timezone(timedelta(0))) \
+                                > timedelta(hours=1):
+                            oldjobids.append(jobid)
+                if oldjobids:
+                    with redis_jobstore.redis.pipeline() as pipe:
+                        redis_jobstore.redis.hdel(key, *oldjobids)
+                        if len(oldjobids) == len(jobs):
+                            redis_jobstore.redis.delete(key)
+                        pipe.execute()
+        if cur == 0:
+            break
+    print('cleaning up task done')
+
+
+if is_predefined_crontask_lck:
+    scheduler.add_job(
+        clean_up_job_info,
+        jobstore='memory',
+        trigger='interval',
+        days=1,
+        next_run_time=datetime.now()
+    )
 
 
 def fetch_token(name):
@@ -126,7 +187,7 @@ def fetch_token(name):
         if not token.get('refresh_token'):
             return {}
         if not token.get('access_token'):
-            current_app.logger.info("Refesh access token")
+            current_app.logger.info("Refresh access token")
             try:
                 new_token = oauth.google.fetch_access_token(
                     refresh_token=token.get("refresh_token"),
@@ -210,9 +271,8 @@ def upload():
             schedule_job,
             args=(yt_url, folder_id, oauth.google.token, session['user_id']))
         with redis_jobstore.redis.pipeline() as pipe:
-            redis_jobstore.redis.hset(
-                session['user_id'],
-                job.id,
+            redis_jobstore.redis.set(
+                "apscheduler.jobinfo:%s:%s" % (session['user_id'], job.id),
                 json.dumps({
                     'started_at': int(job.trigger.run_date.timestamp()),
                     'yt_url': yt_url,
@@ -220,7 +280,8 @@ def upload():
                     'folder_name': folders_map.get(folder_id, ''),
                     'status': None,
                     'msg': None
-                })
+                }),
+                ex=3600  # expires in 1 hour
             )
             pipe.execute()
         session['msg'] = {'type': 'success', 'msg': 'Task created'}
@@ -259,7 +320,17 @@ def get_folders_and_store_to_session():
 @app.route("/tasks")
 @login_required
 def tasks():
+    # for backward compatible
     jobdata = redis_jobstore.redis.hgetall(session['user_id'])
+    cur = 0
+    while 1:
+        cur, keys = redis_jobstore.redis.scan(
+            cur, "apscheduler.jobinfo:%s:*" % (session['user_id']))
+        for key in keys:
+            jobdata[key.rsplit(b':', 1)[1]] = redis_jobstore.redis.get(key)
+        if cur == 0:
+            break
+
     jobs = {
         kv[0].decode('ascii'): json.loads(kv[1])
         # value of jobinfo still in bytes but we can order base on it because
