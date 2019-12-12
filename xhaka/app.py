@@ -12,7 +12,7 @@ from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler import events
 from .ggdrive_folders import folder_list_filted, get_folder_hierarchy
-from .scheduler_setup import is_predefined_crontask_lck
+# from .scheduler_setup import is_predefined_crontask_lck
 
 
 jobinfo_keys = set([
@@ -166,14 +166,14 @@ def clean_up_job_info():
     print('cleaning up task done')
 
 
-if is_predefined_crontask_lck:
-    scheduler.add_job(
-        clean_up_job_info,
-        jobstore='memory',
-        trigger='interval',
-        days=1,
-        next_run_time=datetime.now()
-    )
+# if is_predefined_crontask_lck:
+#     scheduler.add_job(
+#         clean_up_job_info,
+#         jobstore='memory',
+#         trigger='interval',
+#         days=1,
+#         next_run_time=datetime.now()
+#     )
 
 
 def fetch_token(name):
