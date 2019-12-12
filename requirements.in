@@ -8,3 +8,4 @@ orjson
 apscheduler
 redis
 gunicorn
+uwsgi

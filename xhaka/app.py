@@ -11,7 +11,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler import events
-from .ggdrive_folders import folder_list_filted, get_folder_hierarchy
+from xhaka.ggdrive_folders import folder_list_filted, get_folder_hierarchy
 # from .scheduler_setup import is_predefined_crontask_lck
 
 
@@ -54,7 +54,7 @@ def download_vid_n_upload_to_ggdrive(yt_url, destination_folder_id):
     file_path = result_info.split("[ffmpeg] Destination: ")[1]
     file_path = file_path.split("\nDeleting original file")[0]
 
-    from .packaging import prepare_package
+    from xhaka.packaging import prepare_package
     headers, body = prepare_package(file_path, destination_folder_id)
     gdrive_upload_resp = oauth.google.post(
         "/upload/drive/v3/files?uploadType=multipart",
@@ -116,11 +116,16 @@ def timestamp_to_datetime(s):
 scheduler = BackgroundScheduler()
 memory_jobstore = MemoryJobStore()
 scheduler.add_jobstore(memory_jobstore, 'memory')
-redis_jobstore = RedisJobStore(
-    host=app.config['REDIS_HOST'],
-    port=app.config['REDIS_PORT'],
-    password=app.config['REDIS_PASSWORD']
-)
+if app.config.get("REDIS_URL"):
+    from redis import Redis
+    redis_jobstore = RedisJobStore()
+    redis_jobstore.redis = Redis.from_url(app.config.get("REDIS_URL"))
+else:
+    redis_jobstore = RedisJobStore(
+        host=app.config['REDIS_HOST'],
+        port=app.config['REDIS_PORT'],
+        password=app.config['REDIS_PASSWORD']
+    )
 # check if redis server is ready
 redis_jobstore.redis.ping()
 
