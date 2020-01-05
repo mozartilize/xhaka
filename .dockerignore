@@ -1,0 +1,17 @@
+.github/
+
+.vscode/
+
+assets/
+
+README.md
+
+requirements.in
+
+Procfile
+
+**/*/_pycache__/
+
+*.pyc
+
+.env

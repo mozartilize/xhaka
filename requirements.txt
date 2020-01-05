@@ -190,4 +190,4 @@ youtube-dl==2019.11.28 \
 
 # WARNING: The following packages were not pinned, but pip requires them to be
 # pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
-# setuptools==42.0.2        # via apscheduler, gunicorn
+# setuptools

@@ -1,5 +1,6 @@
 from functools import wraps
 from datetime import datetime, timezone, timedelta
+from logging.config import dictConfig
 from flask import Flask, current_app, render_template, request, redirect, \
     url_for, session, json
 from werkzeug.exceptions import Unauthorized
@@ -14,6 +15,22 @@ from apscheduler import events
 from xhaka.ggdrive_folders import folder_list_filted, get_folder_hierarchy
 # from .scheduler_setup import is_predefined_crontask_lck
 
+import atexit
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[PID %(process)d - %(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['wsgi']
+    }
+})
 
 jobinfo_keys = set([
     'started_at',
@@ -134,6 +151,13 @@ scheduler.add_listener(job_event_handler,
                        events.EVENT_JOB_ERROR | events.EVENT_JOB_EXECUTED)
 
 scheduler.start()
+
+
+def shutdown_scheduler_on_exit():
+    scheduler.shutdown()
+
+
+atexit.register(shutdown_scheduler_on_exit)
 
 
 def clean_up_job_info():
@@ -272,9 +296,13 @@ def upload():
     if request.method == "POST":
         folder_id = request.form.get("folder_id")
         yt_url = request.form.get("url")
+        app.logger.info("adding job")
         job = scheduler.add_job(
             schedule_job,
             args=(yt_url, folder_id, oauth.google.token, session['user_id']))
+        app.logger.info("add job done")
+
+        app.logger.info("save initial job info to redis")
         with redis_jobstore.redis.pipeline() as pipe:
             redis_jobstore.redis.set(
                 "apscheduler.jobinfo:%s:%s" % (session['user_id'], job.id),
@@ -289,6 +317,8 @@ def upload():
                 ex=3600  # expires in 1 hour
             )
             pipe.execute()
+        app.logger.info("save to redis done")
+
         session['msg'] = {'type': 'success', 'msg': 'Task created'}
         return redirect(url_for("upload"))
 
@@ -340,6 +370,6 @@ def tasks():
         kv[0].decode('ascii'): json.loads(kv[1])
         # value of jobinfo still in bytes but we can order base on it because
         # started_at is first item
-        for kv in sorted(jobdata.items(), key=lambda x: x[1], reverse=True)
+        for kv in sorted(jobdata.items(), key=lambda x: x[1])
     }
     return render_template('tasks.html', jobs=jobs)
