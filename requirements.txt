@@ -184,9 +184,9 @@ wtforms==2.2.1 \
     --hash=sha256:0cdbac3e7f6878086c334aa25dc5a33869a3954e9d1e015130d65a69309b3b61 \
     --hash=sha256:e3ee092c827582c50877cdbd49e9ce6d2c5c1f6561f849b3b068c1b8029626f1 \
     # via flask-wtf
-youtube-dl==2019.11.28 \
-    --hash=sha256:43d6b991a34934fec2be20b93d4774ccc8642db1e5f0b8f1569f53b8d769af48 \
-    --hash=sha256:de2254dc38472b0e0e3ac4d1e95a9e636ec790af83e7b055e1e09f03eb61bb5c
+youtube-dl==2020.2.16 \
+    --hash=sha256:3ba5a9258a33b537392f3dfd3f8868631c63a437d17524555922020ba19c4102 \
+    --hash=sha256:b98d240c928a1bd0412b270ccf0d776aae5448672ea374e0af45f6daa3984009
 
 # WARNING: The following packages were not pinned, but pip requires them to be
 # pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
