@@ -3,14 +3,17 @@ name: CI
 on:
   release:
     types: [published]
-
+  push:
+    branches:
+      - master
+    paths: requirements.txt 
 jobs:
   deploy:
 
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Deploy heroku
         env:
           HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
