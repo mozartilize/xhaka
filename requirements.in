@@ -1,6 +1,6 @@
 Flask
 Flask-WTF
-Authlib>=0.11,<0.13  # remove this later https://github.com/authlib/loginpass/pull/55
+Authlib>=0.11,<0.15  # remove this later https://github.com/authlib/loginpass/pull/55
 loginpass
 python-dotenv
 youtube-dl
