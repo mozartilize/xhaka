@@ -202,9 +202,9 @@ wtforms==2.2.1 \
     --hash=sha256:0cdbac3e7f6878086c334aa25dc5a33869a3954e9d1e015130d65a69309b3b61 \
     --hash=sha256:e3ee092c827582c50877cdbd49e9ce6d2c5c1f6561f849b3b068c1b8029626f1 \
     # via flask-wtf
-youtube-dl==2020.12.14 \
-    --hash=sha256:65968065e66966955dc79fad9251565fcc982566118756da624bd21467f3a04c \
-    --hash=sha256:eaa859f15b6897bec21474b7787dc958118c8088e1f24d4ef1d58eab13188958 \
+youtube-dl==2020.12.22 \
+    --hash=sha256:43e69ec7551156ffb68dc7b3c97d3f330b429ff4740bbbf034b8223c4e948057 \
+    --hash=sha256:fc5368f34e6db3ebeda6071e65eff9490a01722537626f535b7b7b302148b999 \
     # via -r requirements.in
 
 # WARNING: The following packages were not pinned, but pip requires them to be
