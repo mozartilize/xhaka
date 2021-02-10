@@ -4,9 +4,9 @@
 #
 #    pip-compile --generate-hashes requirements.in
 #
-apscheduler==3.6.3 \
-    --hash=sha256:3bb5229eed6fbbdafc13ce962712ae66e175aa214c69bed35a06bffcf0c5e244 \
-    --hash=sha256:e8b1ecdb4c7cb2818913f766d5898183c7cb8936680710a4d3a966e02262e526
+apscheduler==3.7.0 \
+    --hash=sha256:1cab7f2521e107d07127b042155b632b7a1cd5e02c34be5a28ff62f77c900c6a \
+    --hash=sha256:c06cc796d5bb9eb3c4f77727f6223476eb67749e7eea074d1587550702a7fbe3
     # via -r requirements.in
 authlib==0.12.1 \
     --hash=sha256:40728195efe915c96209a6a57ad6b5565a951bb469f01bd0c38ea13a0bac6c68 \
