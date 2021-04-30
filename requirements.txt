@@ -154,9 +154,9 @@ orjson==3.4.2 \
 pycparser==2.19 \
     --hash=sha256:a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3
     # via cffi
-python-dotenv==0.12.0 \
-    --hash=sha256:81822227f771e0cab235a2939f0f265954ac4763cafd806d845801c863bf372f \
-    --hash=sha256:92b3123fb2d58a284f76cc92bfe4ee6c502c32ded73e8b051c4f6afc8b6751ed
+python-dotenv==0.17.1 \
+    --hash=sha256:00aa34e92d992e9f8383730816359647f358f4a3be1ba45e5a5cefd27ee91544 \
+    --hash=sha256:b1ae5e9643d5ed987fc57cc2583021e38db531946518130777734f9589b3141f
     # via -r requirements.in
 pytz==2019.3 \
     --hash=sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d \
