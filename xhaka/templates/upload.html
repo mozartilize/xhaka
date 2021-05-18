@@ -23,12 +23,12 @@
       </div>
       <div id="folders-wrapper">
         <ul style="list-style:none;padding:0.4em;margin:0;">
-          <li id=''><span style="cursor:pointer;">root</span></li>
+          <li id=''><span class="folder-name" style="cursor:pointer;">root</span></li>
           {% for f in folder_hierarchy -%}
             {% set outer_lvls = [] %}
             {% if not loop.last %}
               {% for next_f in folder_hierarchy[loop.index:] %}
-                {% if next_f|length < f|length and next_f|length not in outer_lvls %} 
+                {% if next_f|length < f|length and next_f|length not in outer_lvls %}
                   {{ outer_lvls.append(next_f|length) or '' }}
                 {% endif %}
               {% endfor %}
@@ -63,7 +63,7 @@
           document.getElementById('folder_id').value = this.parentElement.id;
         }
         if (this.style.color !== '') {
-          this.style.color = ''  
+          this.style.color = ''
         } else {
           this.style.color = 'white';
         }

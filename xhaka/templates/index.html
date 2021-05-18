@@ -4,7 +4,7 @@
   {% if request.cookies.get('refresh_token') %}
     <a href="{{ url_for('upload') }}">Upload</a>
   {% else %}
-    <a href="{{ url_for('loginpass_google.login') }}">Login with Google</a>
+    <a href="{{ url_for('loginpass.login', name='google') }}">Login with Google</a>
   {% endif %}
 
 {% endblock %}

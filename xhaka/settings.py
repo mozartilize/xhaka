@@ -7,22 +7,18 @@ try:
 except ImportError:
     pass
 else:
-    load_dotenv(os.path.join(BASE_DIR, "../.env"))
+    ENV = os.path.abspath(os.getenv("ENV") or os.path.join(BASE_DIR, "../.env"))
+    load_dotenv(ENV)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "something secret")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_CLIENT_KWARGS = {
-    'scope': 'openid email profile https://www.googleapis.com/auth/drive.file'
-             ' https://www.googleapis.com/auth/drive.metadata.readonly'
+    "scope": "openid email profile https://www.googleapis.com/auth/drive.file"
+    " https://www.googleapis.com/auth/drive.metadata.readonly"
 }
-GOOGLE_AUTHORIZE_PARAMS = {
-    'prompt': 'consent'
-}
+GOOGLE_AUTHORIZE_PARAMS = {"prompt": "consent", "access_type": "offline"}
 
 REDIS_URL = os.getenv("REDIS_URL")
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 TEMPLATES_AUTO_RELOAD = True
