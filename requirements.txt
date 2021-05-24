@@ -18,7 +18,7 @@ click==7.1.2
     # via flask
 cryptography==3.4.7
     # via authlib
-dramatiq==1.10.0
+dramatiq==1.11.0
     # via -r requirements.in
 flask-wtf==0.14.3
     # via -r requirements.in
