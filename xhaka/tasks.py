@@ -98,7 +98,7 @@ def main_task(url, folder_id, access_token, user_id):
         info = ytdl.extract_info(url, download=False)
 
     file_name = f"{info['title']}.mp3"
-    ytdl_task_args = ["youtube-dl", "-q", "-f", "bestaudio[ext=m4a]", url, "-o", "-"]
+    ytdl_task_args = ["youtube-dl", "-q", "-f", "bestaudio[ext=webm,ext=m4a]", url, "-o", "-"]
     ytdl_task = Popen(ytdl_task_args, stdout=PIPE)
     ffmpeg_task_args = [
         "ffmpeg",
