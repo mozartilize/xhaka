@@ -3,11 +3,13 @@ from collections import namedtuple
 
 import dramatiq
 import orjson as json
+from confluent_kafka import Producer as KafkaProducer
 from dramatiq.brokers.redis import RedisBroker
 
 from . import settings
 
 redis_broker = RedisBroker(url=settings.REDIS_URL)
+dramatiq.set_broker(redis_broker)
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +84,31 @@ class SetResultMiddleware(dramatiq.Middleware):
         job_dto.update_job(user_id, Job(**job_data))
 
 
+def delivery_report(err, msg):
+    """Called once for each message produced to indicate delivery result.
+    Triggered by poll() or flush()."""
+    if err is not None:
+        print("Message delivery failed: {}".format(err))
+    else:
+        print("Message delivered to {} [{}]".format(msg.topic(), msg.partition()))
+
+
+class KafkaNotifyMiddleware(dramatiq.Middleware):
+    def __init__(self, config):
+        self.producer = KafkaProducer(config)
+
+    def after_process_message(self, broker, message, *, result=None, exception=None):
+        _, _, _, user_id = message.args
+        self.producer.produce(
+            user_id, message.message_id.encode("utf-8"), callback=delivery_report
+        )
+        self.producer.poll(0)
+
+
 redis_broker.add_middleware(SetResultMiddleware())
-dramatiq.set_broker(redis_broker)
+redis_broker.add_middleware(
+    KafkaNotifyMiddleware({"bootstrap.servers": settings.KAFKA_BROKERS})
+)
 
 
 @dramatiq.actor(max_retries=0)
@@ -98,7 +123,15 @@ def main_task(url, folder_id, access_token, user_id):
         info = ytdl.extract_info(url, download=False)
 
     file_name = f"{info['title']}.mp3"
-    ytdl_task_args = ["youtube-dl", "-q", "-f", "bestaudio[ext=webm,ext=m4a]", url, "-o", "-"]
+    ytdl_task_args = [
+        "youtube-dl",
+        "-q",
+        "-f",
+        "bestaudio[ext=webm,ext=m4a]",
+        url,
+        "-o",
+        "-",
+    ]
     ytdl_task = Popen(ytdl_task_args, stdout=PIPE)
     ffmpeg_task_args = [
         "ffmpeg",
@@ -135,4 +168,5 @@ def main_task(url, folder_id, access_token, user_id):
         ytdl_task.kill()
         ffmpeg_task.kill()
         raise Exception(err.decode("utf-8"))
+
     logger.info(f"{user_id} saved {file_name} done.")

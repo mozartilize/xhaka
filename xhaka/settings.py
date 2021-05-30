@@ -22,3 +22,5 @@ GOOGLE_AUTHORIZE_PARAMS = {"prompt": "consent", "access_type": "offline"}
 REDIS_URL = os.getenv("REDIS_URL")
 
 TEMPLATES_AUTO_RELOAD = True
+
+KAFKA_BROKERS = "localhost"
