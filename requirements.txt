@@ -46,7 +46,7 @@ markupsafe==2.0.0
     # via
     #   jinja2
     #   wtforms
-orjson==3.5.2
+orjson==3.5.3
     # via -r requirements.in
 prometheus-client==0.10.1
     # via dramatiq
