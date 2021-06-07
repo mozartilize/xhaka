@@ -64,7 +64,7 @@ werkzeug==1.0.1
     # via flask
 wtforms==2.3.3
     # via flask-wtf
-youtube-dl==2021.5.16
+youtube-dl==2021.6.6
     # via -r requirements.in
 zope.event==4.5.0
     # via gevent
