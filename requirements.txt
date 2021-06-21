@@ -52,7 +52,7 @@ prometheus-client==0.10.1
     # via dramatiq
 pycparser==2.20
     # via cffi
-python-dotenv==0.17.1
+python-dotenv==0.18.0
     # via -r requirements.in
 redis==3.5.3
     # via -r requirements.in
