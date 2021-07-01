@@ -20,12 +20,12 @@ cryptography==3.4.7
     # via authlib
 dramatiq==1.11.0
     # via -r requirements.in
-flask-wtf==0.14.3
-    # via -r requirements.in
 flask==1.1.4
     # via
     #   -r requirements.in
     #   flask-wtf
+flask-wtf==0.14.3
+    # via -r requirements.in
 gevent==21.1.2
     # via -r requirements.in
 greenlet==1.1.0
@@ -46,7 +46,7 @@ markupsafe==2.0.0
     # via
     #   jinja2
     #   wtforms
-orjson==3.5.2
+orjson==3.5.4
     # via -r requirements.in
 prometheus-client==0.10.1
     # via dramatiq
