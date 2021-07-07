@@ -98,6 +98,8 @@ def main_task(url, folder_id, access_token, user_id):
     with YoutubeDL({"quiet": True}) as ytdl:
         info = ytdl.extract_info(url, download=False)
 
+    del info["thumbnails"]
+    del info["automatic_captions"]
     info_echo = Popen(["echo", "-n", json.dumps(info).decode()], stdout=PIPE)
 
     file_name = f"{info['title']}.mp3"
