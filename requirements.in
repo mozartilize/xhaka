@@ -9,3 +9,4 @@ redis
 gunicorn
 gevent
 dramatiq
+sentry-sdk[flask]

@@ -6,6 +6,7 @@ import orjson as json
 from dramatiq.brokers.redis import RedisBroker
 
 from . import settings
+from .extensions import sentry  # noqa
 
 redis_broker = RedisBroker(url=settings.REDIS_URL)
 

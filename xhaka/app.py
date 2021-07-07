@@ -11,8 +11,9 @@ from flask import (
     session,
     url_for,
 )
-from flask_wtf.csrf import CSRFProtect
 
+from .extensions import csrf
+from .extensions import sentry  # noqa
 from .ggdrive_folders import folder_list_filted, get_folder_hierarchy
 from .tasks import Job, JobDTO, main_task
 
@@ -30,8 +31,6 @@ dictConfig(
         "root": {"level": "DEBUG", "handlers": ["wsgi"]},
     }
 )
-
-csrf = CSRFProtect()
 
 
 def get_folders_and_store_to_session(client):
