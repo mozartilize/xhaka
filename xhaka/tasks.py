@@ -97,9 +97,22 @@ def main_task(url, folder_id, access_token, user_id):
     with YoutubeDL({"quiet": True}) as ytdl:
         info = ytdl.extract_info(url, download=False)
 
+    info_echo = Popen(["echo", "-n", json.dumps(info).decode()], stdout=PIPE)
+
     file_name = f"{info['title']}.mp3"
-    ytdl_task_args = ["youtube-dl", "-q", "-f", "bestaudio[ext=webm,ext=m4a]", url, "-o", "-"]
-    ytdl_task = Popen(ytdl_task_args, stdout=PIPE)
+
+    ytdl_task_args = [
+        "youtube-dl",
+        "-q",
+        "--load-info-json",
+        "-",
+        "-f",
+        "bestaudio[ext=webm,ext=m4a]",
+        url,
+        "-o",
+        "-",
+    ]
+    ytdl_task = Popen(ytdl_task_args, stdin=info_echo.stdout, stdout=PIPE)
     ffmpeg_task_args = [
         "ffmpeg",
         "-i",
@@ -128,6 +141,7 @@ def main_task(url, folder_id, access_token, user_id):
             "GOOGLE_API_ACCESS_TOKEN": access_token,
         },
     )
+    info_echo.stdout.close()
     ytdl_task.stdout.close()
     ffmpeg_task.stdout.close()
     _, err = upload_task.communicate()
