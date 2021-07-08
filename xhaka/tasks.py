@@ -1,9 +1,13 @@
 import logging
+import sys
 from collections import namedtuple
+from pathlib import Path
+from subprocess import PIPE, Popen
 
 import dramatiq
 import orjson as json
 from dramatiq.brokers.redis import RedisBroker
+from youtube_dl import YoutubeDL
 
 from . import settings
 from .extensions import sentry  # noqa
@@ -89,12 +93,6 @@ dramatiq.set_broker(redis_broker)
 
 @dramatiq.actor(max_retries=0)
 def main_task(url, folder_id, access_token, user_id):
-    import sys
-    from pathlib import Path
-    from subprocess import PIPE, Popen
-
-    from youtube_dl import YoutubeDL
-
     with YoutubeDL({"quiet": True}) as ytdl:
         info = ytdl.extract_info(url, download=False)
 
@@ -151,6 +149,7 @@ def main_task(url, folder_id, access_token, user_id):
     ffmpeg_task.stdout.close()
     _, err = upload_task.communicate()
     if err:
+        info_echo.kill()
         ytdl_task.kill()
         ffmpeg_task.kill()
         raise Exception(err.decode("utf-8"))
