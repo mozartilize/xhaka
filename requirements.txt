@@ -22,6 +22,8 @@ click==7.1.2
     # via flask
 cryptography==3.4.7
     # via authlib
+deprecated==1.2.13
+    # via redis
 dramatiq==1.12.0
     # via -r requirements.in
 flask==1.1.4
@@ -59,7 +61,7 @@ pycparser==2.20
     # via cffi
 python-dotenv==0.18.0
     # via -r requirements.in
-redis==3.5.3
+redis==4.0.1
     # via -r requirements.in
 requests==2.25.1
     # via loginpass
@@ -71,6 +73,8 @@ urllib3==1.26.6
     #   sentry-sdk
 werkzeug==1.0.1
     # via flask
+wrapt==1.13.3
+    # via deprecated
 wtforms==2.3.3
     # via flask-wtf
 youtube-dl==2021.6.6
