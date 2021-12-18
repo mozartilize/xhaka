@@ -29,7 +29,7 @@ flask==1.1.4
     #   -r requirements.in
     #   flask-wtf
     #   sentry-sdk
-flask-wtf==0.15.1
+flask-wtf==1.0.0
     # via -r requirements.in
 gevent==21.1.2
     # via -r requirements.in
