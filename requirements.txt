@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt
 #
-authlib==0.15.4
+authlib==0.15.5
     # via
     #   -r requirements.in
     #   loginpass
