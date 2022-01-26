@@ -63,7 +63,7 @@ redis==3.5.3
     # via -r requirements.in
 requests==2.25.1
     # via loginpass
-sentry-sdk[flask]==1.2.0
+sentry-sdk[flask]==1.5.4
     # via -r requirements.in
 urllib3==1.26.6
     # via
