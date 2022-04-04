@@ -22,7 +22,7 @@ click==7.1.2
     # via flask
 cryptography==3.4.7
     # via authlib
-dramatiq==1.12.3
+dramatiq==1.13.0
     # via -r requirements.in
 flask==1.1.4
     # via
@@ -75,9 +75,9 @@ wtforms==2.3.3
     # via flask-wtf
 youtube-dl==2021.12.17
     # via -r requirements.in
-zope.event==4.5.0
+zope-event==4.5.0
     # via gevent
-zope.interface==5.4.0
+zope-interface==5.4.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
