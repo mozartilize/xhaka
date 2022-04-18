@@ -51,7 +51,7 @@ markupsafe==2.0.1
     # via
     #   jinja2
     #   wtforms
-orjson==3.5.4
+orjson==3.6.8
     # via -r requirements.in
 prometheus-client==0.11.0
     # via dramatiq
@@ -75,9 +75,9 @@ wtforms==2.3.3
     # via flask-wtf
 youtube-dl==2021.12.17
     # via -r requirements.in
-zope.event==4.5.0
+zope-event==4.5.0
     # via gevent
-zope.interface==5.4.0
+zope-interface==5.4.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
