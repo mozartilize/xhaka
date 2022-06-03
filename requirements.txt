@@ -4,6 +4,8 @@
 #
 #    pip-compile --output-file=requirements.txt
 #
+async-timeout==4.0.2
+    # via redis
 authlib==0.15.4
     # via
     #   -r requirements.in
@@ -22,6 +24,8 @@ click==7.1.2
     # via flask
 cryptography==3.4.7
     # via authlib
+deprecated==1.2.13
+    # via redis
 dramatiq==1.12.3
     # via -r requirements.in
 flask==1.1.4
@@ -39,6 +43,8 @@ gunicorn==20.1.0
     # via -r requirements.in
 idna==2.10
     # via requests
+importlib-metadata==4.11.4
+    # via redis
 itsdangerous==1.1.0
     # via
     #   flask
@@ -53,31 +59,44 @@ markupsafe==2.0.1
     #   wtforms
 orjson==3.5.4
     # via -r requirements.in
+packaging==21.3
+    # via redis
 prometheus-client==0.11.0
     # via dramatiq
 pycparser==2.20
     # via cffi
+pyparsing==3.0.9
+    # via packaging
 python-dotenv==0.18.0
     # via -r requirements.in
-redis==3.5.3
+redis==4.3.3
     # via -r requirements.in
 requests==2.25.1
     # via loginpass
 sentry-sdk[flask]==1.2.0
     # via -r requirements.in
+typing-extensions==4.2.0
+    # via
+    #   async-timeout
+    #   importlib-metadata
+    #   redis
 urllib3==1.26.6
     # via
     #   requests
     #   sentry-sdk
 werkzeug==1.0.1
     # via flask
+wrapt==1.14.1
+    # via deprecated
 wtforms==2.3.3
     # via flask-wtf
 youtube-dl==2021.12.17
     # via -r requirements.in
-zope.event==4.5.0
+zipp==3.8.0
+    # via importlib-metadata
+zope-event==4.5.0
     # via gevent
-zope.interface==5.4.0
+zope-interface==5.4.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
