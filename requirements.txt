@@ -10,7 +10,7 @@ authlib==0.15.4
     #   loginpass
 blinker==1.4
     # via sentry-sdk
-certifi==2021.5.30
+certifi==2022.12.7
     # via
     #   requests
     #   sentry-sdk
@@ -75,9 +75,9 @@ wtforms==2.3.3
     # via flask-wtf
 youtube-dl==2021.12.17
     # via -r requirements.in
-zope.event==4.5.0
+zope-event==4.5.0
     # via gevent
-zope.interface==5.4.0
+zope-interface==5.4.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
